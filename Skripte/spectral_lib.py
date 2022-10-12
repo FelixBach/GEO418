@@ -19,12 +19,12 @@ def spectral():
     print("Bänder:", nbands)
 
     print(spec.shape)
-    # for i in range(nspec):
-    #     plt.plot(wavel, spec[i])
-    plt.plot(wavel, spec[0, :])
-    plt.plot(wavel, spec[4, :])
-    plt.plot(wavel, spec[10, :])
-    #
+    for i in range(nspec):
+        plt.plot(wavel, spec[i])
+    # plt.plot(wavel, spec[0, :])
+    # plt.plot(wavel, spec[4, :])
+    # plt.plot(wavel, spec[10, :])
+    # #
     plt.ylabel('reflectance')
     plt.xlabel(units)
     plt.show()

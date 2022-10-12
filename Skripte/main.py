@@ -5,8 +5,13 @@ import SM
 
 def main():
     # spectral_lib.spectral()
-    LAI.LAI()
-    # SM.SM()
+
+    # LAI.LAI()
+
+    # SM.sm_bands()
+    # SM.sm_lin_reg()
+    # SM.sm_multi_lin_reg()
+    SM.pls()
 
 
 if __name__ == '__main__':

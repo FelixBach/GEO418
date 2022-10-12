@@ -60,12 +60,12 @@ def LAI():
     # plt.plot(wavel, spec[19,:])
     plt.ylabel('reflectance')
     plt.xlabel(units)
-    # plt.show()
+    plt.show()
 
     my_spec = spec[0, :]
     # print(my_spec.shape)
-    # plt.plot(my_spec)
-    # plt.show()
+    plt.plot(my_spec)
+    plt.show()
 
     # now calculate the NDVI for it, suing NIR band 580 and red band 350:
     print((my_spec[580] - my_spec[350]) / (my_spec[580] + my_spec[350]))
@@ -73,14 +73,15 @@ def LAI():
     # ... and now the NDVI for all spectra:
     ndvi = (spec[:, 580] - spec[:, 350]) / (spec[:, 580] + spec[:, 350])
 
-    # plt.plot(ndvi)
-    # plt.show()
+    plt.plot(ndvi)
+    plt.show()
 
     lai = [0, 0.5, 1, 2, 3, 4]
     plt.plot(lai, ndvi)
     plt.xlabel('LAI')
     plt.ylabel('NDVI')
-    # plt.show()
+    plt.show()
+    print(ndvi)
 
     # das Simple ration (SR) ist definiert als Ratio 1250 / 1050
     # da unsere Feldspektren das erste Band bei 350 nm haben, und dann in 1 nm Bandschritten gemessen wurden, ist das Ratio also
@@ -90,22 +91,14 @@ def LAI():
     plt.plot(lai, sr)
     plt.xlabel('LAI')
     plt.ylabel('Simple Ratio')
-    # plt.show()
+    plt.show()
 
     # for estimating how good our model is, we need to import some functions...
 
-    print("NDVI shape vorher:", ndvi.shape)
     ndvi = ndvi.reshape(-1, 1)
-    print("Nachher: ", ndvi.shape)
-
-    print("sr shape vorher:", sr.shape)
     sr = sr.reshape(-1, 1)
-    print("Nachher: ", sr.shape)
-
     band = spec[:, 450]
-    print("band shape vorher:", band.shape)
     band = band.reshape(-1, 1)
-    print("Nachher: ", band.shape)
 
     # now calcualte the linear regression between NDVI and LAI:
 
