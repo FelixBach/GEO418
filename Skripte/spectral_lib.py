@@ -29,11 +29,12 @@ def spectral(spectral_infile):
     # plt.savefig("C:/GEO418/Daten_Messungen/Hausarbeit/AUSWERTUNG_Arten_all_spec.png", dpi='figure', format=None,
     #             metadata=None, bbox_inches=None, pad_inches=0.1, facecolor='auto', edgecolor='auto', backend=None)
 
+    print(units)
     plt.plot(wavel, spec[0, :])
     plt.plot(wavel, spec[4, :])
     plt.plot(wavel, spec[10, :])
     plt.ylabel('Reflektanz')
-    plt.xlabel('Wellenlänge [Mikrometer]')
+    plt.xlabel('Wellenlänge [nm]')
     plt.legend(names_leg)
     plt.show()
     # plt.savefig("C:/GEO418/Daten_Messungen/Hausarbeit/AUSWERTUNG_Arten_arten_spec.png", dpi='figure', format=None,

@@ -9,12 +9,12 @@ def main():
 
     # spectral_lib.spectral(spectral_infile)
 
-    LAI.LAI(lai_infile)
+    # LAI.LAI(lai_infile)
 
-    # SM.sm_bands()
-    # SM.sm_lin_reg()
-    # SM.sm_multi_lin_reg()
-    # SM.pls()
+    SM.sm_bands()
+    SM.sm_lin_reg()
+    SM.sm_multi_lin_reg()
+    SM.pls()
 
 
 if __name__ == '__main__':

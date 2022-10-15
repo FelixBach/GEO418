@@ -1,6 +1,4 @@
 import numpy as np
-# from osgeo import gdal
-# from gdalconst import *
 import scipy as scipy
 from scipy import linalg, optimize
 
@@ -15,7 +13,6 @@ from scipy.stats import mode
 import sys
 from sys import stdout
 
-import time
 import pandas as pd
 import spectral.io.envi as envi
 
@@ -47,6 +44,9 @@ water = list(range(125))
 water1 = water
 water2 = water
 
+s_spec1 = savgol_filter(s_spec, 17, polyorder=2, deriv=1)
+s_spec2 = savgol_filter(s_spec, 17, polyorder=2, deriv=2)
+
 
 def sm_bands():
     print("Number of spectra: ", s_nspec)
@@ -56,63 +56,67 @@ def sm_bands():
     print("Wavelengths covered: ", np.min(wavel_in), " to ", np.max(wavel_in))
     print("Name of first and last spectrum: ", s_names[0], " ", s_names[s_nspec - 1])
 
-    # for i in range(s_nspec):
-    #     plt.plot(s_wavel, s_spec[i])
-    # plt.ylabel('reflectance')
-    # plt.xlabel(s_units)
-    # plt.show()
+    for i in range(s_nspec):
+        plt.plot(s_wavel, s_spec[i])
+    plt.ylabel('Reflektanz')
+    plt.xlabel("Wellenlänge [nm]")
+    plt.show()
 
-    # plt.plot(s_wavel, s_spec[0, :])
-    # plt.plot(s_wavel, s_spec[5, :])
-    # plt.plot(s_wavel, s_spec[80, :])
-    # plt.plot(s_wavel, s_spec[95, :])
-    # plt.plot(s_wavel, s_spec[120, :])
-    # plt.show()
+    spr = ['0 Sprühstöße', '1 - 15 Sprühstöße', '17 - 21 Sprühstöße', '24 - 36 Sprühstöße', '49 Sprühstöße']
+    plt.plot(s_wavel, s_spec[0, :], color='brown')
+    plt.plot(s_wavel, s_spec[5, :], color='red')
+    plt.plot(s_wavel, s_spec[80, :], color='orange')
+    plt.plot(s_wavel, s_spec[95, :], color='green')
+    plt.plot(s_wavel, s_spec[120, :], color='blue')
+    plt.ylabel('Reflektanz')
+    plt.xlabel("Wellenlänge [nm]")
+    plt.legend(spr, ncol=2, fontsize=7)
+    plt.show()
 
     # maybe some visualizations first:
 
-    print("Using matplotlib:")
-    plt.figure()
-    plt.plot(wavel_in, s_spec[0, :], color='green', linewidth=1, label=s_names[0])
-    plt.plot(wavel_in, s_spec[s_nspec - 1, :], color='red', linewidth=1, label=s_names[s_nspec - 1])
-    plt.legend(loc="lower right")
-    plt.title('Simple plot of the first and last spectrum')
-    plt.show()
-
-    print(" ")
-    print("And now using Seaborn and Pandas:")
-
-    dataset = pd.DataFrame({'Water': water, 'Band100': s_spec[:, 100], 'Band1500': s_spec[:, 1500]})
-    print(dataset)
-
-    # fig, ax = plt.subplots(nrows=1, ncols=2,  sharex=False, sharey=False)
-
-    # so that we can use the nice plottings:
-
-    print("Plotting the data distribution within band 100:")
-    sns.distplot(dataset["Band100"]);
-    plt.show()
-
-    print("Box plot for band 100:")
-    # now as boxplots
-    # ax = sns.boxplot(dataset["Band1500"]);
+    # print("Using matplotlib:")
+    # plt.figure()
+    # plt.plot(wavel_in, s_spec[0, :], color='green', linewidth=1, label=s_names[0])
+    # plt.plot(wavel_in, s_spec[s_nspec - 1, :], color='red', linewidth=1, label=s_names[s_nspec - 1])
+    # plt.legend(loc="lower right")
+    # plt.title('Simple plot of the first and last spectrum')
     # plt.show()
-    sns.boxplot(y=dataset["Band100"]);
-    plt.show()
 
-    print("... and adding data points to it:")
-    sns.boxplot(y=dataset["Band100"]);
-    sns.swarmplot(y=dataset["Band100"], color=".25");
-    plt.show()
-
-    print("Now the correlation of band 100 and band 1500:")
-    # correlation between band 100 (450 nm) and band 1500 (1850 nm)
-    sns.jointplot(x="Band100", y="Band1500", data=dataset);
-
-    # and already with the water content:
-    print("And now visualize if there's already a correlation with the water content:")
-    sns.jointplot(x="Water", y="Band100", data=dataset, kind="kde");
-    sns.jointplot(x="Water", y="Band1500", data=dataset, kind="kde");
+    # print(" ")
+    # print("And now using Seaborn and Pandas:")
+    #
+    # dataset = pd.DataFrame({'Water': water, 'Band100': s_spec[:, 100], 'Band1500': s_spec[:, 1500]})
+    # print(dataset)
+    #
+    # # fig, ax = plt.subplots(nrows=1, ncols=2,  sharex=False, sharey=False)
+    #
+    # # so that we can use the nice plottings:
+    #
+    # print("Plotting the data distribution within band 100:")
+    # sns.distplot(dataset["Band100"]);
+    # plt.show()
+    #
+    # print("Box plot for band 100:")
+    # # now as boxplots
+    # # ax = sns.boxplot(dataset["Band1500"]);
+    # # plt.show()
+    # sns.boxplot(y=dataset["Band100"]);
+    # plt.show()
+    #
+    # print("... and adding data points to it:")
+    # sns.boxplot(y=dataset["Band100"]);
+    # sns.swarmplot(y=dataset["Band100"], color=".25");
+    # plt.show()
+    #
+    # print("Now the correlation of band 100 and band 1500:")
+    # # correlation between band 100 (450 nm) and band 1500 (1850 nm)
+    # sns.jointplot(x="Band100", y="Band1500", data=dataset);
+    #
+    # # and already with the water content:
+    # print("And now visualize if there's already a correlation with the water content:")
+    # sns.jointplot(x="Water", y="Band100", data=dataset, kind="kde");
+    # sns.jointplot(x="Water", y="Band1500", data=dataset, kind="kde");
 
 
 def sm_lin_reg():
@@ -232,24 +236,24 @@ def pls():
     print("spectra & 5 components (score, mse): ", score, mse)
 
     # Plot spectra
-    plt.figure(figsize=(8, 9))
-    with plt.style.context(('ggplot')):
-        ax1 = plt.subplot(211)
-        plt.plot(wavel_in, s_spec.T)
-        plt.ylabel('Reflectance spectra')
-        # ax2 = plt.subplot(212, sharex=ax1)
-        # plt.plot(wavel_in, np.abs(pls.coef_[:,0]))
-        # plt.xlabel('Wavelength (nm)')
-        # plt.ylabel('Absolute value of PLS coefficients')
-
-        ax2 = plt.subplot(212, sharex=ax1)
-        plt.plot(wavel_in, pls.coef_[:, 0], label='value')
-        plt.plot(wavel_in, np.abs(pls.coef_[:, 0]), label='abs. value')
-        plt.xlabel('Wavelength [nm}')
-        plt.ylabel('Value of PLS coefficients')
-        plt.legend();
-
-        plt.show()
+    # plt.figure(figsize=(8, 9))
+    # with plt.style.context(('ggplot')):
+    #     ax1 = plt.subplot(211)
+    #     plt.plot(wavel_in, s_spec.T)
+    #     plt.ylabel('Reflectance spectra')
+    #     # ax2 = plt.subplot(212, sharex=ax1)
+    #     # plt.plot(wavel_in, np.abs(pls.coef_[:,0]))
+    #     # plt.xlabel('Wavelength (nm)')
+    #     # plt.ylabel('Absolute value of PLS coefficients')
+    #
+    #     ax2 = plt.subplot(212, sharex=ax1)
+    #     plt.plot(wavel_in, pls.coef_[:, 0], label='value')
+    #     plt.plot(wavel_in, np.abs(pls.coef_[:, 0]), label='abs. value')
+    #     plt.xlabel('Wavelength [nm}')
+    #     plt.ylabel('Value of PLS coefficients')
+    #     plt.legend();
+    #
+    #     plt.show()
 
     ##################################################################################################################
     # => what happens if we discard the first ~200 noisy bands?
@@ -267,26 +271,26 @@ def pls():
     print("good spectra & 5 components (score, mse): ", score_g, mse_g)
 
     # Plot spectra
-    plt.figure(figsize=(8, 9))
-    with plt.style.context(('ggplot')):
-        ax1 = plt.subplot(211)
-        plt.plot(wavel_good, spec_good.T)
-        plt.xlabel('Wavelength [nm]')
-        plt.ylabel('Reflectance')
-
-        ax2 = plt.subplot(212, sharex=ax1)
-        # plt.plot(wavel_good, pls_g.coef_[:,0], label='value')
-        plt.plot(wavel_good, np.abs(pls_g.coef_[:, 0]))
-        plt.xlabel('Wavelength [nm}')
-        plt.ylabel('Abs. value of PLS coefficients')
-        # plt.legend();
-    plt.show()
+    # plt.figure(figsize=(8, 9))
+    # with plt.style.context(('ggplot')):
+    #     ax1 = plt.subplot(211)
+    #     plt.plot(wavel_good, spec_good.T)
+    #     plt.xlabel('Wavelength [nm]')
+    #     plt.ylabel('Reflectance')
+    #
+    #     ax2 = plt.subplot(212, sharex=ax1)
+    #     # plt.plot(wavel_good, pls_g.coef_[:,0], label='value')
+    #     plt.plot(wavel_good, np.abs(pls_g.coef_[:, 0]))
+    #     plt.xlabel('Wavelength [nm}')
+    #     plt.ylabel('Abs. value of PLS coefficients')
+    #     # plt.legend();
+    # plt.show()
 
     ##################################################################################################################
 
     # Show how the mean error behaves in calibration Vs. validation models when adding components:
 
-    n_comp = 27  # was: 30
+    n_comp = 30  # was: 30
 
     mse_cal = []
     mse_val = []
@@ -315,10 +319,6 @@ def pls():
         plt.legend();
     plt.show()
 
-    # for derivatives_
-    s_spec1 = savgol_filter(s_spec, 17, polyorder=2, deriv=1)
-    s_spec2 = savgol_filter(s_spec, 17, polyorder=2, deriv=2)
-
     # Plot second derivative
     plt.figure(figsize=(8, 4.5))
     with plt.style.context(('ggplot')):
@@ -341,102 +341,89 @@ def pls():
     mse2 = mean_squared_error(water2, water_cv2)
     print("2nd derivative & 5 components (score2, mse2): ", score2, mse2)
 
-    ##############################################################################################################################################################################
+    ####################################################################################################################
 
-    def optimise_pls_cv(X, y, n_comp, plot_components=True):
 
-        '''Run PLS including a variable number of components, up to n_comp,
-           and calculate MSE '''
+def optimise_pls_cv(X, y, n_comp, plot_components=True):
+    '''Run PLS including a variable number of components, up to n_comp,
+       and calculate MSE '''
 
-        mse = []
-        component = np.arange(1, n_comp)
+    mse = []
+    component = np.arange(1, n_comp)
 
-        for i in component:
-            pls = PLSRegression(n_components=i)
-
-            # Cross-validation
-            y_cv = cross_val_predict(pls, X, y, cv=10)
-
-            mse.append(mean_squared_error(y, y_cv))
-
-            comp = 100 * (i + 1) / 40
-            # Trick to update status on the same line
-            stdout.write("\r%d%% completed" % comp)
-            stdout.flush()
-        stdout.write("\n")
-
-        # Calculate and print the position of minimum in MSE
-        msemin = np.argmin(mse)
-        print("Suggested number of components: ", msemin + 1)
-        stdout.write("\n")
-
-        if plot_components is True:
-            with plt.style.context(('ggplot')):
-                plt.plot(component, np.array(mse), '-v', color='blue', mfc='blue')
-                plt.plot(component[msemin], np.array(mse)[msemin], 'P', ms=10, mfc='red')
-                plt.xlabel('Number of PLS components')
-                plt.ylabel('MSE')
-                plt.title('PLS')
-                plt.xlim(left=-1)
-
-            plt.show()
-
-        # Define PLS object with optimal number of components
-        pls_opt = PLSRegression(n_components=msemin + 1)
-
-        # Fir to the entire dataset
-        pls_opt.fit(X, y)
-        y_c = pls_opt.predict(X)
+    for i in component:
+        pls = PLSRegression(n_components=i)
 
         # Cross-validation
-        y_cv = cross_val_predict(pls_opt, X, y, cv=10)
+        y_cv = cross_val_predict(pls, X, y, cv=10)
 
-        # Calculate scores for calibration and cross-validation
-        score_c = r2_score(y, y_c)
-        score_cv = r2_score(y, y_cv)
+        mse.append(mean_squared_error(y, y_cv))
 
-        # Calculate mean squared error for calibration and cross validation
-        mse_c = mean_squared_error(y, y_c)
-        mse_cv = mean_squared_error(y, y_cv)
+        comp = 100 * (i + 1) / 40
+        # Trick to update status on the same line
+        stdout.write("\r%d%% completed" % comp)
+        stdout.flush()
+    stdout.write("\n")
 
-        print('R2 calib: %5.3f' % score_c)
-        print('R2 CV: %5.3f' % score_cv)
-        print('MSE calib: %5.3f' % mse_c)
-        print('MSE CV: %5.3f' % mse_cv)
+    # Calculate and print the position of minimum in MSE
+    msemin = np.argmin(mse)
+    print("Suggested number of components: ", msemin + 1)
+    stdout.write("\n")
 
-        # Plot regression and figures of merit
-        rangey = max(y) - min(y)
-        rangex = max(y_c) - min(y_c)
-
-        # Fit a line to the CV vs response
-        z = np.polyfit(y, y_c, 1)
+    if plot_components is True:
         with plt.style.context(('ggplot')):
-            fig, ax = plt.subplots(figsize=(9, 5))
-            ax.scatter(y_c, y, c='red', edgecolors='k')
-            # Plot the best fit line
-            ax.plot(np.polyval(z, y), y, c='blue', linewidth=1)
-            # Plot the ideal 1:1 line
-            ax.plot(y, y, color='green', linewidth=1)
-            plt.title('$R^{2}$ (CV): ' + str(score_cv))
-            plt.xlabel('Predicted $^{\circ}$Water')
-            plt.ylabel('Measured $^{\circ}$Water')
+            plt.plot(component, np.array(mse), '-v', color='blue', mfc='blue')
+            plt.plot(component[msemin], np.array(mse)[msemin], 'P', ms=10, mfc='red')
+            plt.xlabel('Number of PLS components')
+            plt.ylabel('MSE')
+            plt.title('PLS')
+            plt.xlim(left=-1)
 
-            plt.show()
+        plt.show()
 
-        return
+    # Define PLS object with optimal number of components
+    pls_opt = PLSRegression(n_components=msemin + 1)
 
-    # now run it_   ### if setting the iterations to ~40, one can demonstrate the error behaviour of the fitting ;)
-    print('')
-    print('Using the reflectances:')
-    optimise_pls_cv(s_spec, water, 27, plot_components=True)  # 40
+    # Fir to the entire dataset
+    pls_opt.fit(X, y)
+    y_c = pls_opt.predict(X)
 
-    print('')
-    print('Using 1st derivatives:')
-    optimise_pls_cv(s_spec1, water, 16, plot_components=True)  # 40
+    # Cross-validation
+    y_cv = cross_val_predict(pls_opt, X, y, cv=10)
 
-    print('')
-    print('Using 2nd derivatives:')
-    optimise_pls_cv(s_spec2, water, 16, plot_components=True)  # 40
+    # Calculate scores for calibration and cross-validation
+    score_c = r2_score(y, y_c)
+    score_cv = r2_score(y, y_cv)
+
+    # Calculate mean squared error for calibration and cross validation
+    mse_c = mean_squared_error(y, y_c)
+    mse_cv = mean_squared_error(y, y_cv)
+
+    print('R2 calib: %5.3f' % score_c)
+    print('R2 CV: %5.3f' % score_cv)
+    print('MSE calib: %5.3f' % mse_c)
+    print('MSE CV: %5.3f' % mse_cv)
+
+    # Plot regression and figures of merit
+    rangey = max(y) - min(y)
+    rangex = max(y_c) - min(y_c)
+
+    # Fit a line to the CV vs response
+    z = np.polyfit(y, y_c, 1)
+    with plt.style.context(('ggplot')):
+        fig, ax = plt.subplots(figsize=(9, 5))
+        ax.scatter(y_c, y, c='red', edgecolors='k')
+        # Plot the best fit line
+        ax.plot(np.polyval(z, y), y, c='blue', linewidth=1)
+        # Plot the ideal 1:1 line
+        ax.plot(y, y, color='green', linewidth=1)
+        plt.title('$R^{2}$ (CV): ' + str(score_cv))
+        plt.xlabel('Predicted $^{\circ}$Water')
+        plt.ylabel('Measured $^{\circ}$Water')
+
+        plt.show()
+
+    return
 
 
 ###################################################################################################################
@@ -502,6 +489,12 @@ def pls_variable_selection(X, y, max_comp):
 
 # so first run PLS without optimization:
 
+# sm_bands()
+# sm_lin_reg()
+# sm_multi_lin_reg()
+pls()
+optimise_pls_cv(s_spec, water, 15)
+
 wo_pls = PLSRegression(n_components=5)
 wo_pls.fit(s_spec, water)
 wo_water_predicted = wo_pls.predict(s_spec)  # calculate the predicted values
@@ -542,3 +535,27 @@ o_mse_crossval = mean_squared_error(water, o_water_crossval)  # mean error for c
 print('With band selection and ', ncomp, ' components:')
 print('   MSE cal      : %5.3f' % o_mse_pred)
 print('   MSE cross-val: %5.3f' % o_mse_crossval)
+
+#############
+# plot of discared bands:
+
+# opt_Xc,   ncomp, wav,       sorted_ind = pls_variable_selection(X1, y, 15)
+# opt_spec, ncomp, wavel_in, sorted_index = pls_variable_selection(s_spec,water, 15
+
+
+# Get a boolean array according to the indices that are being discarded
+ix = np.in1d(wavel_in.ravel(), wavel_in[sorted_index][:wav])
+
+
+# Plot spectra with superimpose selected bands
+fig, ax = plt.subplots(figsize=(8,9))
+with plt.style.context(('ggplot')):
+    ax.plot(wavel_in, s_spec.T)
+    plt.ylabel('Reflectance')
+    plt.xlabel('Wavelength [nm]')
+
+collection = collections.BrokenBarHCollection.span_where(
+    wavel_in, ymin=-1, ymax=1, where=ix == True, facecolor='red', alpha=0.3)
+ax.add_collection(collection)
+
+plt.show()
